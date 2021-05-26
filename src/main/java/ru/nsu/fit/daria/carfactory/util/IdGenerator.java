@@ -9,7 +9,7 @@ public class IdGenerator {
         atomicLong = new AtomicLong(1);
     }
 
-    public Long get(){
+    public long get(){
         return atomicLong.getAndIncrement();
     }
 }

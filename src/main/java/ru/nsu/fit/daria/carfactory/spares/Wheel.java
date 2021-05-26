@@ -1,7 +1,7 @@
 package ru.nsu.fit.daria.carfactory.spares;
 
 public class Wheel extends CarPart{
-    public Wheel(Long ID){
+    public Wheel(long ID){
         super(ID);
     }
 }

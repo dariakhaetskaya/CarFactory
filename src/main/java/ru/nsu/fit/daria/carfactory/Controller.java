@@ -45,7 +45,7 @@ public class Controller implements Observer, Runnable {
             try{
                 int workerCount = carsStorageCapacity - carsInStorage - threadPool.getActiveCount() - threadPool.getQueue().size();
                 for (int i = 0; i < workerCount; i++){
-                    threadPool.execute(new Worker(factory)); // may de wrong constructor
+                    threadPool.execute(new Worker(factory));
                 }
 
                 synchronized (this){

@@ -81,7 +81,7 @@ public class CarFactory {
 
     }
 
-    public Long generateID(){
+    public long generateID(){
         return idGenerator.get();
     }
 
@@ -114,8 +114,6 @@ public class CarFactory {
     public Storage<Car> passCarStorageKey(){
         return carStorage;
     }
-
-
 
     public void stopFactory(){
         logger.info("FACTORY :: STOPPING WORKING");

@@ -12,7 +12,7 @@ import static ru.nsu.fit.daria.carfactory.util.Utils.ensuringNotNull;
 
 public class Worker implements Runnable{
     private final CarFactory carFactory;
-    private final Long workerID; // for logging
+    private final long workerID; // for logging
     private int workersMoney;
 
     private final Storage<Engine> engineStorage;

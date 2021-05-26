@@ -5,11 +5,13 @@ import ru.nsu.fit.daria.carfactory.products.Product;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Observable;
+import java.util.logging.Logger;
 
 public class Storage<T extends Product> extends Observable {
     private LinkedList<T> items;
     private final int storageCapacity;
     private final String storageName;
+    private static final Logger logger = Logger.getLogger(Storage.class.getName());
 
     public int getStorageCapacity() {
         return storageCapacity;
@@ -23,12 +25,16 @@ public class Storage<T extends Product> extends Observable {
         storageName = name;
         storageCapacity = capacity;
         items = new LinkedList<>();
+        logger.info(storageName + " :: CREATED");
     }
 
     public synchronized void put (T newItem) throws InterruptedException {
-            if (items.size() == storageCapacity){
+            if (items.size() >= storageCapacity){
+                logger.info(storageName + " :: STORAGE IS FULL");
                 wait();
             }
+
+            logger.info(storageName + " :: GOT NEW ITEM :: " + newItem.toString());
 
             items.add(newItem);
             notify();
@@ -44,6 +50,7 @@ public class Storage<T extends Product> extends Observable {
                    notify();
                    setChanged();
                    notifyObservers(items.size());
+                   logger.info(storageName + " :: PASSING PRODUCT");
                    return item;
                } else {
                    wait();

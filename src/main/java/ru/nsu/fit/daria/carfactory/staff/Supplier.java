@@ -24,8 +24,9 @@ public class Supplier <T extends Product> implements Runnable{
     public void run(){
         while (!Thread.currentThread().isInterrupted()){
             try {
-                Long itemID = factory.generateID();
-                T item = (T)itemClass.getDeclaredConstructor(Long.class).newInstance(itemID);
+                long itemID = factory.generateID();
+//                T item = (T)itemClass.getDeclaredConstructor(Long.class).newInstance(itemID);
+                T item = (T)itemClass.getDeclaredConstructor(long.class).newInstance(itemID);
                 storage.put(item);
                 factory.closeItemOrder(price);
                 Thread.sleep(delay);
