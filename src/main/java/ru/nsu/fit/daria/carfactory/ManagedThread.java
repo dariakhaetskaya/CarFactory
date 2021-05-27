@@ -1,3 +1,5 @@
+package ru.nsu.fit.daria.carfactory;
+
 import ru.nsu.fit.daria.carfactory.util.ThreadState;
 import static ru.nsu.fit.daria.carfactory.util.ThreadState.*;
 

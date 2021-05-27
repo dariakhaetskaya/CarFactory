@@ -1,16 +1,19 @@
-package ru.nsu.fit.daria.carfactory.staff;
+package ru.nsu.fit.daria.carfactory.tasks;
 
 import ru.nsu.fit.daria.carfactory.CarFactory;
 import ru.nsu.fit.daria.carfactory.Storage;
 import ru.nsu.fit.daria.carfactory.products.Car;
+import ru.nsu.fit.daria.carfactory.threadpool.Task;
 
-public class Dealer implements Runnable {
-    private CarFactory factory;
-    private Storage<Car> carStorage;
-    private int carPrice;
-    private int delay;
+public class SellCar implements Task {
+    private final long dealerID;
+    private final CarFactory factory;
+    private final Storage<Car> carStorage;
+    private final int carPrice;
+    private final int delay;
 
-    public Dealer(CarFactory factory, int carPrice, int delay){
+    public SellCar(CarFactory factory, int carPrice, int delay){
+        dealerID = factory.generateID();
         this.factory = factory;
         this.carPrice = carPrice;
         this.delay = delay;
@@ -18,10 +21,15 @@ public class Dealer implements Runnable {
     }
 
     @Override
-    public void run(){
+    public String getName() {
+        return "Sell car. Dealer ID: " + dealerID;
+    }
+
+    @Override
+    public void performWork(){
         while (!Thread.currentThread().isInterrupted()){
             try {
-                Car car = carStorage.get();
+                carStorage.get();
                 factory.closeCarSellContract(carPrice);
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
@@ -29,4 +37,6 @@ public class Dealer implements Runnable {
             }
         }
     }
+
+
 }
