@@ -12,7 +12,7 @@ public class Supply<T extends Product> implements Task {
     private final CarFactory factory;
     private final Storage<T> storage;
     private final int price;
-    private final int delay;
+    private int delay;
     private final Class<T> itemClass;
     private static final Logger logger = Logger.getLogger(Supply.class.getName());
 
@@ -33,7 +33,9 @@ public class Supply<T extends Product> implements Task {
     public void performWork(){
         while (!Thread.currentThread().isInterrupted()){
             try {
+                System.out.println("sleepin for " + delay);
                 Thread.sleep(delay);
+                System.out.println("slept");
                 long itemID = factory.generateID();
                 T item = itemClass .getDeclaredConstructor(long.class).newInstance(itemID);
                 storage.put(item);
@@ -47,6 +49,12 @@ public class Supply<T extends Product> implements Task {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    @Override
+    public void changeParams(int newParam) {
+        System.out.println("settin new param" + newParam);
+        this.delay = newParam;
     }
 
 }

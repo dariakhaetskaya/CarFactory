@@ -45,4 +45,8 @@ public class BuildCar implements Task {
             carFactory.closeCarOrder();
         }
     }
+
+    @Override
+    public void changeParams(int newParam) {
+    }
 }

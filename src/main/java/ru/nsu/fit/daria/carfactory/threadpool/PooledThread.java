@@ -1,7 +1,6 @@
 package ru.nsu.fit.daria.carfactory.threadpool;
 
 import java.util.ArrayDeque;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -38,7 +37,7 @@ public class PooledThread extends Thread {
             synchronized (taskQueue){
                 if(taskQueue.isEmpty()){
                     try {
-                        taskQueue.wait(10);
+                        taskQueue.wait();
                     } catch (InterruptedException e){
                         logger.info("POOLED THREAD:: THREAD WAS INTERRUPTED: " + getName());
                         break;

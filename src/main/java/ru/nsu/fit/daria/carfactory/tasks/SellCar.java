@@ -11,7 +11,7 @@ public class SellCar implements Task {
     private final CarFactory factory;
     private final Storage<Car> carStorage;
     private final int carPrice;
-    private final int delay;
+    private int delay;
 
     public SellCar(CarFactory factory, int carPrice, int delay){
         dealerID = factory.generateID();
@@ -39,5 +39,9 @@ public class SellCar implements Task {
         }
     }
 
+    @Override
+    public void changeParams(int newParam) {
+        this.delay = newParam;
+    }
 
 }
