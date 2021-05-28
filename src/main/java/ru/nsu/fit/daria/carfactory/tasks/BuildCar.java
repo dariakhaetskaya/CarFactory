@@ -30,7 +30,7 @@ public class BuildCar implements Task {
     }
 
     @Override
-    public String getName() {
+    public String getTaskName() {
         return "Build car. Worker ID: " + workerID;
     }
 

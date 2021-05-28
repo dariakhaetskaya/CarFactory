@@ -1,6 +1,7 @@
 package ru.nsu.fit.daria.carfactory.tasks;
 
 import ru.nsu.fit.daria.carfactory.CarFactory;
+import ru.nsu.fit.daria.carfactory.ManagedThread;
 import ru.nsu.fit.daria.carfactory.Storage;
 import ru.nsu.fit.daria.carfactory.products.Car;
 import ru.nsu.fit.daria.carfactory.threadpool.Task;
@@ -21,19 +22,19 @@ public class SellCar implements Task {
     }
 
     @Override
-    public String getName() {
+    public String getTaskName() {
         return "Sell car. Dealer ID: " + dealerID;
     }
 
     @Override
-    public void performWork(){
+    public void performWork() throws InterruptedException {
         while (!Thread.currentThread().isInterrupted()){
             try {
+                Thread.sleep(delay);
                 carStorage.get();
                 factory.closeCarSellContract(carPrice);
-                Thread.sleep(delay);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                throw e;
             }
         }
     }

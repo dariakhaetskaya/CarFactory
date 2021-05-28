@@ -25,7 +25,7 @@ public class Supply<T extends Product> implements Task {
     }
 
     @Override
-    public String getName() {
+    public String getTaskName() {
         return "Supply" + itemClass.getName();
     }
 

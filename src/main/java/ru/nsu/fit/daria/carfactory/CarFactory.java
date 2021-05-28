@@ -10,17 +10,21 @@ import ru.nsu.fit.daria.carfactory.tasks.Supply;
 import ru.nsu.fit.daria.carfactory.threadpool.Task;
 import ru.nsu.fit.daria.carfactory.threadpool.ThreadPool;
 import ru.nsu.fit.daria.carfactory.util.IdGenerator;
+import ru.nsu.fit.daria.carfactory.util.Observable;
+import ru.nsu.fit.daria.carfactory.util.Observer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 
-public class CarFactory {
+public class CarFactory implements Observable {
     private static final Logger logger = Logger.getLogger(CarFactory.class.getName());
     private final IdGenerator idGenerator = new IdGenerator();
     private Properties properties;
+    private final ArrayList<SellCar> sellingOrders = new ArrayList<>();
 
     private final Storage<Engine> engineStorage;
     private final Storage<CarBody> carBodyStorage;
@@ -34,6 +38,8 @@ public class CarFactory {
     private final ThreadPool supplierThreadPool;
     private final ThreadPool dealerThreadPool;
 
+    private final ArrayList<Observer> observers;
+
     public CarFactory(){
         logger.info("CAR FACTORY :: STARTING");
         try {
@@ -44,6 +50,7 @@ public class CarFactory {
             e.printStackTrace();
         }
 
+        observers = new ArrayList<>();
         carBodyStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarBodyStorageCapacity")), "CarBodyStorage");
         engineStorage = new Storage<>(Integer.parseInt(properties.getProperty("EngineStorageCapacity")), "EngineStorage");
         wheelStorage = new Storage<>(Integer.parseInt(properties.getProperty("WheelStorageCapacity")), "WheelStorage");
@@ -77,13 +84,29 @@ public class CarFactory {
             Task buildingOrder = new BuildCar(this);
             workerThreadPool.addTask(buildingOrder);
         }
-//        // create dealers
+        // create dealers
         dealerThreadPool = new ThreadPool(dealerCount);
         for (int i = 0; i < dealerCount; i++){
-            Task sellingOrder = new SellCar(this, carPrice, dealerDelay);
-            dealerThreadPool.addTask(sellingOrder);
+            sellingOrders.add(new SellCar(this, carPrice, dealerDelay));
+            dealerThreadPool.addTask(sellingOrders.get(i));
         }
 
+    }
+
+    public int getEngineStorageSize(){
+        return engineStorage.getItemCount();
+    }
+
+    public int getWheelStorageSize(){
+        return wheelStorage.getItemCount();
+    }
+
+    public int getCarBodyStorageSize(){
+        return carBodyStorage.getItemCount();
+    }
+
+    public int getCarStorageSize(){
+        return carStorage.getItemCount();
     }
 
     public long generateID(){
@@ -122,9 +145,25 @@ public class CarFactory {
     public void stopFactory(){
         logger.info("FACTORY :: STOPPING WORKING");
         logger.info("TOTAL BALANCE: " + factoryBudget);
+
         workerThreadPool.shutdown();
         supplierThreadPool.shutdown();
         dealerThreadPool.shutdown();
         logger.info("FACTORY :: FINISHED WORKING");
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void update() {
+
     }
 }

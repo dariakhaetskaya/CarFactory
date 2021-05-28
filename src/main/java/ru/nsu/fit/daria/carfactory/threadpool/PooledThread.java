@@ -1,6 +1,7 @@
 package ru.nsu.fit.daria.carfactory.threadpool;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -12,6 +13,11 @@ public class PooledThread extends Thread {
     public PooledThread(String name, ArrayDeque<ThreadPoolTask> taskQueue){
         super(name);
         this.taskQueue = taskQueue;
+    }
+
+    public void interruptPooledThread(){
+        this.interrupt();
+        shutdownRequired.set(true);
     }
 
     private void performTask(ThreadPoolTask t){
@@ -28,11 +34,11 @@ public class PooledThread extends Thread {
 
     public void run(){
         ThreadPoolTask toExecute;
-        while (true){
+        while (!shutdownRequired.get()){
             synchronized (taskQueue){
                 if(taskQueue.isEmpty()){
                     try {
-                        taskQueue.wait();
+                        taskQueue.wait(10);
                     } catch (InterruptedException e){
                         logger.info("POOLED THREAD:: THREAD WAS INTERRUPTED: " + getName());
                         break;
@@ -42,11 +48,8 @@ public class PooledThread extends Thread {
                     toExecute = taskQueue.remove();
                 }
             }
-            logger.info(getName() + " :: GOT THE JOB: " + toExecute.getName());
+            logger.info(getName() + " :: GOT THE JOB: " + toExecute.getTaskName());
             performTask(toExecute);
-            if (shutdownRequired.get()){
-                break;
-            }
         }
     }
 }

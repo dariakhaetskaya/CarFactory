@@ -25,7 +25,7 @@ public class ThreadPoolTask {
         task.performWork();
     }
 
-    String getName(){
-        return task.getName();
+    String getTaskName(){
+        return task.getTaskName();
     }
 }

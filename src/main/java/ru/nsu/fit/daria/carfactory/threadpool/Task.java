@@ -1,6 +1,6 @@
 package ru.nsu.fit.daria.carfactory.threadpool;
 
 public interface Task {
-    String getName();
+    String getTaskName();
     void performWork() throws InterruptedException;
 }

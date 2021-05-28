@@ -20,17 +20,17 @@ public class ThreadPool implements TaskListener {
 
     @Override
     public void taskStarted(Task t) {
-        logger.info("THREAD POOL :: STARTED " + t.getName());
+        logger.info("THREAD POOL :: STARTED " + t.getTaskName());
     }
 
     @Override
     public void taskFinished(Task t) {
-        logger.info("THREAD POOL :: FINISHED " + t.getName());
+        logger.info("THREAD POOL :: FINISHED " + t.getTaskName());
     }
 
     @Override
     public void taskInterrupted(Task t) {
-        logger.info("THREAD POOL :: INTERRUPTED " + t.getName());
+        logger.info("THREAD POOL :: INTERRUPTED " + t.getTaskName());
     }
 
     public void addTask(Task t){
@@ -39,21 +39,23 @@ public class ThreadPool implements TaskListener {
 
     public void addTask(Task t, TaskListener l){
         synchronized (taskQueue){
-            logger.fine("THREAD POOL :: ADDING NEW TASK " + t.getName());
+            logger.fine("THREAD POOL :: ADDING NEW TASK " + t.getTaskName());
             taskQueue.add(new ThreadPoolTask(t, l));
-            taskQueue.notify();
+            taskQueue.notifyAll();
         }
     }
 
     public void shutdown(){
         logger.info("THREAD POOL :: SHUTTING DOWN POOL... INTERRUPTING THREADS");
         for (PooledThread pt: availableThreads){
-            pt.interrupt();
+            pt.interruptPooledThread();
+            logger.info("THREAD POOL :: INTERRUPTED " + pt.getName());
         }
 
         for (PooledThread pt: availableThreads){
             try {
                 pt.join();
+                logger.info("THREAD POOL :: FINISHED " + pt.getName());
             } catch (InterruptedException e){
                 logger.info("THREAD POOL :: INTERRUPTED WHILE JOINING " + pt.getName());
             }
