@@ -10,18 +10,12 @@ import ru.nsu.fit.daria.carfactory.tasks.Supply;
 import ru.nsu.fit.daria.carfactory.threadpool.Task;
 import ru.nsu.fit.daria.carfactory.threadpool.ThreadPool;
 import ru.nsu.fit.daria.carfactory.util.IdGenerator;
-import ru.nsu.fit.daria.carfactory.util.Observer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.logging.Logger;
-
-import static ru.nsu.fit.daria.carfactory.util.Utils.ANSI_CYAN;
-import static ru.nsu.fit.daria.carfactory.util.Utils.ANSI_YELLOW;
-
 
 public class CarFactory {
     private static final Logger logger = Logger.getLogger(CarFactory.class.getName());
@@ -39,9 +33,6 @@ public class CarFactory {
     private final ThreadPool workerThreadPool;
     private final ThreadPool supplierThreadPool;
     private final ThreadPool dealerThreadPool;
-
-    private AtomicInteger supplierDelay;
-    private AtomicInteger dealerDelay;
 
     Task supplyWheels;
     Task supplyEngine;
@@ -64,8 +55,8 @@ public class CarFactory {
         wheelStorage = new Storage<>(Integer.parseInt(properties.getProperty("WheelStorageCapacity")), "WheelStorage");
         carStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarStorageCapacity")), "CarStorage");
         factoryBudget = Integer.parseInt(properties.getProperty("InitialBudget"));
-        supplierDelay = new AtomicInteger(Integer.parseInt(properties.getProperty("SupplierDelay")));
-        dealerDelay = new AtomicInteger(Integer.parseInt(properties.getProperty("DealerDelay")));
+        int supplierDelay = Integer.parseInt(properties.getProperty("SupplierDelay"));
+        int dealerDelay = Integer.parseInt(properties.getProperty("DealerDelay"));
         int carPrice = Integer.parseInt(properties.getProperty("CarPrice"));
         int sparePartPrice = Integer.parseInt(properties.getProperty("SparePartPrice"));
         int dealerCount = Integer.parseInt(properties.getProperty("NumberOfDealers"));
@@ -79,15 +70,15 @@ public class CarFactory {
         dealerThreadPool = new ThreadPool(dealerCount);
 
         // create suppliers
-        supplyWheels = new Supply<>(this, wheelStorage, supplierDelay.get(), sparePartPrice, Wheel.class);
-        supplyEngine = new Supply<>(this, engineStorage, supplierDelay.get(), sparePartPrice, Engine.class);
-        supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay.get(), sparePartPrice, CarBody.class);
+        supplyWheels = new Supply<>(this, wheelStorage, supplierDelay, sparePartPrice, Wheel.class);
+        supplyEngine = new Supply<>(this, engineStorage, supplierDelay, sparePartPrice, Engine.class);
+        supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay, sparePartPrice, CarBody.class);
 
         // create workers
         buildingOrder = new BuildCar(this);
 
         // create dealers
-        sellingOrder = (new SellCar(this, carPrice, dealerDelay.get()));
+        sellingOrder = (new SellCar(this, carPrice, dealerDelay));
 
         // start production
         Thread routine = new Thread(() -> {
@@ -102,6 +93,16 @@ public class CarFactory {
 
         routine.start();
 
+    }
+
+    public void stopFactory(){
+        logger.info("FACTORY :: STOPPING WORKING");
+        logger.info("TOTAL BALANCE: " + factoryBudget);
+
+        workerThreadPool.shutdown();
+        supplierThreadPool.shutdown();
+        dealerThreadPool.shutdown();
+        logger.info("FACTORY :: FINISHED WORKING");
     }
 
     public int getFactoryBudget() {
@@ -132,11 +133,10 @@ public class CarFactory {
         return idGenerator.get();
     }
 
-    public int closeCarOrder(){
+    public void closeCarOrder(){
         producedCarCount.getAndIncrement();
         int salary = Integer.parseInt(properties.getProperty("WorkerSalary"));
         factoryBudget -= salary;
-        return salary;
     }
 
     public void closeItemOrder(int price){
@@ -163,7 +163,6 @@ public class CarFactory {
         supplyCarBody.changeParams(supplierDelay);
     }
 
-
     public Storage<Engine> passEngineStorageKey(){
         return engineStorage;
     }
@@ -177,14 +176,6 @@ public class CarFactory {
         return carStorage;
     }
 
-    public void stopFactory(){
-        logger.info("FACTORY :: STOPPING WORKING");
-        logger.info("TOTAL BALANCE: " + factoryBudget);
 
-        workerThreadPool.shutdown();
-        supplierThreadPool.shutdown();
-        dealerThreadPool.shutdown();
-        logger.info("FACTORY :: FINISHED WORKING");
-    }
 
 }

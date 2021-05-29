@@ -2,14 +2,11 @@ package ru.nsu.fit.daria.carfactory;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -120,7 +117,7 @@ public class MainApp extends Application{
         // Adding Listener to value property.
         carBodySupplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                     newCarBodySupplierDelay.setText("Current car body supplier delay: " + newValue.intValue());
-                    factory.setEngineSupplierDelay(newValue.intValue());
+                    factory.setCarBodySupplierDelay(newValue.intValue());
                 }
         );
 

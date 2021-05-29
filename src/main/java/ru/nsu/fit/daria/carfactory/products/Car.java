@@ -1,12 +1,8 @@
 package ru.nsu.fit.daria.carfactory.products;
 
-import ru.nsu.fit.daria.carfactory.CarFactory;
 import ru.nsu.fit.daria.carfactory.spares.CarBody;
 import ru.nsu.fit.daria.carfactory.spares.Engine;
 import ru.nsu.fit.daria.carfactory.spares.Wheel;
-
-import java.util.Collections;
-import java.util.List;
 
 import static ru.nsu.fit.daria.carfactory.util.Utils.*;
 

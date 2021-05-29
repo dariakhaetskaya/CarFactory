@@ -1,20 +1,16 @@
 package ru.nsu.fit.daria.carfactory;
 
 import ru.nsu.fit.daria.carfactory.products.Product;
-import ru.nsu.fit.daria.carfactory.util.Observable;
-import ru.nsu.fit.daria.carfactory.util.Observer;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class Storage<T extends Product> {
-    private ArrayDeque<T> items;
+    private final ArrayDeque<T> items;
     private final int storageCapacity;
     private final String storageName;
     private static final Logger logger = Logger.getLogger(Storage.class.getName());
     private final Object monitor = new Object();
-    private final ArrayList<Observer> observers;
 
     public int getStorageCapacity() {
         return storageCapacity;
@@ -29,7 +25,6 @@ public class Storage<T extends Product> {
         storageCapacity = capacity;
         items = new ArrayDeque<>();
         logger.info(storageName + " :: CREATED");
-        observers = new ArrayList<>();
     }
 
     public void put (T newItem) throws InterruptedException {
@@ -45,7 +40,6 @@ public class Storage<T extends Product> {
             }
             logger.info(storageName + " :: GOT NEW ITEM :: " + newItem.toString());
             items.add(newItem);
-//            update();
             monitor.notifyAll();
             logger.info(storageName + " :: NOTIFIED");
         }
@@ -60,7 +54,6 @@ public class Storage<T extends Product> {
                         T item = items.getLast();
                         items.pop();
                         monitor.notifyAll();
-//                        update();
                         logger.info(storageName + " :: PASSING PRODUCT");
                         return item;
                     } else {
