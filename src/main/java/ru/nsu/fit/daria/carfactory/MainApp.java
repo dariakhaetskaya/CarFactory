@@ -24,6 +24,7 @@ public class MainApp extends Application{
     private Text wheelsInStorage;
     private Text enginesInStorage;
     private Text carBodiesInStorage;
+    private Text factoryBudget;
     private CarFactory factory;
 
     @Override
@@ -35,10 +36,11 @@ public class MainApp extends Application{
         carBodiesInStorage = new Text("Cars bodies in storage: " + factory.getCarBodyStorageSize());
         wheelsInStorage = new Text("Wheels in storage: " + factory.getWheelStorageSize());
         enginesInStorage = new Text("Engines in storage: " + factory.getEngineStorageSize());
+        factoryBudget = new Text("Factory budget: " + factory.getFactoryBudget());
 
-        int topPadding = 70;
+        int topPadding = 50;
         int leftPadding = 40;
-        int interval = 30;
+        int interval = 40;
 
         carCount.setX(leftPadding);
         carCount.setY(topPadding);
@@ -55,64 +57,101 @@ public class MainApp extends Application{
         carBodiesInStorage.setX(leftPadding);
         carBodiesInStorage.setY(topPadding + 4 * interval);
 
-        // create Supplier Delay Slider
-        Label supplierDelay = new Label("Supplier delay in mills:");
-
-        Label newSupplierDelay = new Label("-");
-        newSupplierDelay.setTextFill(Color.BLUE);
-
-        Slider supplierDelaySlider = new Slider();
-
-        supplierDelaySlider.setMin(0);
-        supplierDelaySlider.setMax(60000);
-        supplierDelaySlider.setValue(1);
-
-        supplierDelaySlider.setShowTickMarks(true);
-
-        supplierDelaySlider.setBlockIncrement(10);
-
-        // Adding Listener to value property.
-        supplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            newSupplierDelay.setText("New value: " + newValue.intValue());
-            factory.setSupplierDelay(newValue.intValue());
-        }
-        );
-
-        // create Dealer Delay Slider
-        Label dealerDelay = new Label("Dealer delay in mills:");
-
-        Label newDealerDelay = new Label("-");
-        newDealerDelay.setTextFill(Color.BLUE);
-
-        Slider dealerDelaySlider = new Slider();
-
-        dealerDelaySlider.setMin(0);
-        dealerDelaySlider.setMax(60000);
-        dealerDelaySlider.setValue(1);
-
-        dealerDelaySlider.setShowTickMarks(true);
-
-        dealerDelaySlider.setBlockIncrement(10);
-
-        // Adding Listener to value property.
-        dealerDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-                    newDealerDelay.setText("New value: " + newValue.intValue());
-                    factory.setDealerDelay(newValue.intValue());
-                }
-        );
+        factoryBudget.setX(leftPadding);
+        factoryBudget.setY(topPadding + 5 * interval);
 
         // put sliders in a box
         VBox sliderBox = new VBox();
         sliderBox.setPadding(new Insets(leftPadding));
-        sliderBox.setSpacing(10);
-        sliderBox.getChildren().addAll(dealerDelay, dealerDelaySlider, newDealerDelay, supplierDelay, supplierDelaySlider, newSupplierDelay);
-        sliderBox.setLayoutY(400);
+        sliderBox.setSpacing(20);
+        sliderBox.setLayoutY(250);
+
+        // create Wheel Supplier Delay Slider
+        Label wheelSupplierDelay = new Label("Wheel supplier delay in mills:");
+        Label newWheelSupplierDelay = new Label("-");
+        newWheelSupplierDelay.setTextFill(Color.DARKGREEN);
+        Slider wheelSupplierDelaySlider = new Slider();
+        wheelSupplierDelaySlider.setMin(0);
+        wheelSupplierDelaySlider.setMax(60000);
+        wheelSupplierDelaySlider.setValue(1000);
+        wheelSupplierDelaySlider.setShowTickMarks(true);
+        wheelSupplierDelaySlider.setBlockIncrement(10);
+
+        // Adding Listener to value property.
+        wheelSupplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            newWheelSupplierDelay.setText("Current wheel supplier delay: " + newValue.intValue());
+            factory.setWheelSupplierDelay(newValue.intValue());
+        }
+        );
+
+        sliderBox.getChildren().addAll(wheelSupplierDelay, newWheelSupplierDelay, wheelSupplierDelaySlider);
+
+        // create Engine Supplier Delay Slider
+        Label engineSupplierDelay = new Label("Engine supplier delay in mills:");
+        Label newEngineSupplierDelay = new Label("-");
+        newEngineSupplierDelay.setTextFill(Color.DARKGREEN);
+        Slider engineSupplierDelaySlider = new Slider();
+        engineSupplierDelaySlider.setMin(0);
+        engineSupplierDelaySlider.setMax(60000);
+        engineSupplierDelaySlider.setValue(1000);
+        engineSupplierDelaySlider.setShowTickMarks(true);
+        engineSupplierDelaySlider.setBlockIncrement(10);
+
+        // Adding Listener to value property.
+        engineSupplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    newEngineSupplierDelay.setText("Current engine supplier delay: " + newValue.intValue());
+                    factory.setEngineSupplierDelay(newValue.intValue());
+                }
+        );
+
+        sliderBox.getChildren().addAll(engineSupplierDelay, newEngineSupplierDelay, engineSupplierDelaySlider);
+
+        // create Car Body Supplier Delay Slider
+        Label carBodySupplierDelay = new Label("Car body supplier delay in mills:");
+        Label newCarBodySupplierDelay = new Label("-");
+        newCarBodySupplierDelay.setTextFill(Color.DARKGREEN);
+        Slider carBodySupplierDelaySlider = new Slider();
+        carBodySupplierDelaySlider.setMin(0);
+        carBodySupplierDelaySlider.setMax(60000);
+        carBodySupplierDelaySlider.setValue(1000);
+        carBodySupplierDelaySlider.setShowTickMarks(true);
+        carBodySupplierDelaySlider.setBlockIncrement(10);
+
+        // Adding Listener to value property.
+        carBodySupplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    newCarBodySupplierDelay.setText("Current car body supplier delay: " + newValue.intValue());
+                    factory.setEngineSupplierDelay(newValue.intValue());
+                }
+        );
+
+        sliderBox.getChildren().addAll(carBodySupplierDelay, newCarBodySupplierDelay, carBodySupplierDelaySlider);
+
+        // create Dealer Delay Slider
+        Label dealerDelay = new Label("Dealer delay in mills:");
+        Label newDealerDelay = new Label("-");
+        newDealerDelay.setTextFill(Color.DARKGREEN);
+        Slider dealerDelaySlider = new Slider();
+        dealerDelaySlider.setMin(0);
+        dealerDelaySlider.setMax(60000);
+        dealerDelaySlider.setValue(1000);
+        dealerDelaySlider.setShowTickMarks(true);
+        dealerDelaySlider.setBlockIncrement(10);
+
+        // Adding Listener to value property.
+        dealerDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    newDealerDelay.setText("Current dealer delay: " + newValue.intValue());
+                    factory.setDealerDelay(newValue.intValue());
+                }
+        );
+        sliderBox.getChildren().addAll(dealerDelay, newDealerDelay, dealerDelaySlider);
+
 
         // group everything
-        Group counts = new Group(sliderBox, carCount, carsInStorage, wheelsInStorage, enginesInStorage, carBodiesInStorage);
+        Group counts = new Group(sliderBox, carCount, carsInStorage, wheelsInStorage, enginesInStorage, carBodiesInStorage, factoryBudget);
         counts.setStyle("-fx-font: 17 arials;");
 
-        Scene scene = new Scene(counts, 1000, 800);
+        Scene scene = new Scene(counts, 600, 900);
+        scene.setFill(Color.PEACHPUFF);
         stage.setTitle("Car Factory");
         stage.setScene(scene);
         stage.show();
@@ -127,20 +166,24 @@ public class MainApp extends Application{
                     wheelsInStorage.setText("Wheels in storage: " + factory.getWheelStorageSize());
                     enginesInStorage.setText("Engines in storage: " + factory.getEngineStorageSize());
                     carCount.setText("Total cars produced: " + factory.getProducedCarCount());
+                    factoryBudget.setText("Factory budget: " + factory.getFactoryBudget());
                 });
             }
         };
 
-        upd.schedule(task, 0, 300);
+        upd.schedule(task, 0, 10);
 
-//        Scanner in = new Scanner(System.in);
-//        String str = in.nextLine();
-//        factory.stopFactory();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        factory.stopFactory();
+        super.stop();
+        System.exit(0);
     }
 
     public static void main(String[] args) {
         launch(args);
-
     }
 
 }

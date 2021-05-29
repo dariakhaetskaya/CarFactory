@@ -27,7 +27,6 @@ public class CarFactory {
     private static final Logger logger = Logger.getLogger(CarFactory.class.getName());
     private final IdGenerator idGenerator = new IdGenerator();
     private Properties properties;
-    private final ArrayList<SellCar> sellingOrders = new ArrayList<>();
 
     private final Storage<Engine> engineStorage;
     private final Storage<CarBody> carBodyStorage;
@@ -42,11 +41,13 @@ public class CarFactory {
     private final ThreadPool dealerThreadPool;
 
     private AtomicInteger supplierDelay;
-    private int dealerDelay;
+    private AtomicInteger dealerDelay;
 
-    private final ArrayList<Task> suppliers;
-    private final ArrayList<Task> dealers;
-
+    Task supplyWheels;
+    Task supplyEngine;
+    Task supplyCarBody;
+    Task sellingOrder;
+    Task buildingOrder;
 
     public CarFactory(){
         logger.info("CAR FACTORY :: STARTING");
@@ -64,7 +65,7 @@ public class CarFactory {
         carStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarStorageCapacity")), "CarStorage");
         factoryBudget = Integer.parseInt(properties.getProperty("InitialBudget"));
         supplierDelay = new AtomicInteger(Integer.parseInt(properties.getProperty("SupplierDelay")));
-        dealerDelay = Integer.parseInt(properties.getProperty("DealerDelay"));
+        dealerDelay = new AtomicInteger(Integer.parseInt(properties.getProperty("DealerDelay")));
         int carPrice = Integer.parseInt(properties.getProperty("CarPrice"));
         int sparePartPrice = Integer.parseInt(properties.getProperty("SparePartPrice"));
         int dealerCount = Integer.parseInt(properties.getProperty("NumberOfDealers"));
@@ -78,21 +79,15 @@ public class CarFactory {
         dealerThreadPool = new ThreadPool(dealerCount);
 
         // create suppliers
-        suppliers = new ArrayList<>();
-        Task supplyWheels = new Supply<>(this, wheelStorage, supplierDelay.get(), sparePartPrice, Wheel.class);
-        Task supplyEngine = new Supply<>(this, engineStorage, supplierDelay.get(), sparePartPrice, Engine.class);
-        Task supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay.get(), sparePartPrice, CarBody.class);
-        suppliers.add(supplyEngine);
-        suppliers.add(supplyCarBody);
-        suppliers.add(supplyWheels);
+        supplyWheels = new Supply<>(this, wheelStorage, supplierDelay.get(), sparePartPrice, Wheel.class);
+        supplyEngine = new Supply<>(this, engineStorage, supplierDelay.get(), sparePartPrice, Engine.class);
+        supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay.get(), sparePartPrice, CarBody.class);
 
         // create workers
-        Task buildingOrder = new BuildCar(this);
+        buildingOrder = new BuildCar(this);
 
         // create dealers
-        dealers = new ArrayList<>();
-        Task sellingOrder = (new SellCar(this, carPrice, dealerDelay));
-        dealers.add(sellingOrder);
+        sellingOrder = (new SellCar(this, carPrice, dealerDelay.get()));
 
         // start production
         Thread routine = new Thread(() -> {
@@ -107,6 +102,10 @@ public class CarFactory {
 
         routine.start();
 
+    }
+
+    public int getFactoryBudget() {
+        return factoryBudget;
     }
 
     public int getProducedCarCount() {
@@ -149,16 +148,21 @@ public class CarFactory {
     }
 
     public void setDealerDelay(int dealerDelay) {
-        for (Task t: dealers){
-            t.changeParams(dealerDelay);
-        }
+       sellingOrder.changeParams(dealerDelay);
     }
 
-    public void setSupplierDelay(int supplierDelay) {
-        for (Task t: suppliers){
-            t.changeParams(supplierDelay);
-        }
+    public void setWheelSupplierDelay(int supplierDelay) {
+        supplyWheels.changeParams(supplierDelay);
     }
+
+    public void setEngineSupplierDelay(int supplierDelay) {
+        supplyEngine.changeParams(supplierDelay);
+    }
+
+    public void setCarBodySupplierDelay(int supplierDelay) {
+        supplyCarBody.changeParams(supplierDelay);
+    }
+
 
     public Storage<Engine> passEngineStorageKey(){
         return engineStorage;
