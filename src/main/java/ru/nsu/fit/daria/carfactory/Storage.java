@@ -40,7 +40,7 @@ public class Storage<T extends Product> {
             }
             logger.info(storageName + " :: GOT NEW ITEM :: " + newItem.toString());
             items.add(newItem);
-            monitor.notifyAll();
+            monitor.notify();
             logger.info(storageName + " :: NOTIFIED");
         }
     }
@@ -52,8 +52,8 @@ public class Storage<T extends Product> {
                     logger.info(storageName + " SIZE " + items.size());
                     if (!items.isEmpty()) {
                         T item = items.getLast();
-                        items.pop();
-                        monitor.notifyAll();
+                        items.remove();
+                        monitor.notify();
                         logger.info(storageName + " :: PASSING PRODUCT");
                         return item;
                     } else {

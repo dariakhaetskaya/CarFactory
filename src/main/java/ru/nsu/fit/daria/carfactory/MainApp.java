@@ -168,7 +168,7 @@ public class MainApp extends Application{
             }
         };
 
-        upd.schedule(task, 0, 10);
+        upd.schedule(task, 0, 300);
 
     }
 

@@ -50,10 +50,12 @@ public class CarFactory {
             e.printStackTrace();
         }
 
+        // create storages
         carBodyStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarBodyStorageCapacity")), "CarBodyStorage");
         engineStorage = new Storage<>(Integer.parseInt(properties.getProperty("EngineStorageCapacity")), "EngineStorage");
         wheelStorage = new Storage<>(Integer.parseInt(properties.getProperty("WheelStorageCapacity")), "WheelStorage");
         carStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarStorageCapacity")), "CarStorage");
+
         factoryBudget = Integer.parseInt(properties.getProperty("InitialBudget"));
         int supplierDelay = Integer.parseInt(properties.getProperty("SupplierDelay"));
         int dealerDelay = Integer.parseInt(properties.getProperty("DealerDelay"));

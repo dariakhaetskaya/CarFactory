@@ -3,6 +3,9 @@ package ru.nsu.fit.daria.carfactory.products;
 import ru.nsu.fit.daria.carfactory.spares.CarBody;
 import ru.nsu.fit.daria.carfactory.spares.Engine;
 import ru.nsu.fit.daria.carfactory.spares.Wheel;
+import ru.nsu.fit.daria.carfactory.tasks.Supply;
+
+import java.util.logging.Logger;
 
 import static ru.nsu.fit.daria.carfactory.util.Utils.*;
 
@@ -10,6 +13,7 @@ public class Car extends Product{
     private final Engine engine;
     private final CarBody carBody;
     private final Wheel wheels;
+    private static final Logger logger = Logger.getLogger(Car.class.getName());
 
     private Car(long id, Engine engine, CarBody carBody, Wheel wheels){
         super(id);
@@ -41,7 +45,7 @@ public class Car extends Product{
         }
 
         public Car finishBuild(){
-            System.out.println(ANSI_BLUE + "built a car. ID: " + id + ANSI_RESET);
+            logger.info("BUILD A CAR. ID: " + id);
             return new Car(id, engine, carBody, wheels);
         }
 
