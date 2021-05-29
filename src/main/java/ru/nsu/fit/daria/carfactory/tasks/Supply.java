@@ -33,9 +33,7 @@ public class Supply<T extends Product> implements Task {
     public void performWork(){
         while (!Thread.currentThread().isInterrupted()){
             try {
-                System.out.println("sleepin for " + delay);
                 Thread.sleep(delay);
-                System.out.println("slept");
                 long itemID = factory.generateID();
                 T item = itemClass .getDeclaredConstructor(long.class).newInstance(itemID);
                 storage.put(item);
@@ -53,7 +51,6 @@ public class Supply<T extends Product> implements Task {
 
     @Override
     public void changeParams(int newParam) {
-        System.out.println("settin new param" + newParam);
         this.delay = newParam;
     }
 

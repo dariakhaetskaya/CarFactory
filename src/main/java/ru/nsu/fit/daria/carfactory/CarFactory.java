@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.logging.Logger;
 
+import static ru.nsu.fit.daria.carfactory.util.Utils.ANSI_CYAN;
+import static ru.nsu.fit.daria.carfactory.util.Utils.ANSI_YELLOW;
+
 
 public class CarFactory {
     private static final Logger logger = Logger.getLogger(CarFactory.class.getName());
@@ -38,11 +41,12 @@ public class CarFactory {
     private final ThreadPool supplierThreadPool;
     private final ThreadPool dealerThreadPool;
 
-    private int supplierDelay;
+    private AtomicInteger supplierDelay;
     private int dealerDelay;
 
-//    private final ArrayList<Observer> observers;
     private final ArrayList<Task> suppliers;
+    private final ArrayList<Task> dealers;
+
 
     public CarFactory(){
         logger.info("CAR FACTORY :: STARTING");
@@ -54,13 +58,12 @@ public class CarFactory {
             e.printStackTrace();
         }
 
-//        observers = new ArrayList<>();
         carBodyStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarBodyStorageCapacity")), "CarBodyStorage");
         engineStorage = new Storage<>(Integer.parseInt(properties.getProperty("EngineStorageCapacity")), "EngineStorage");
         wheelStorage = new Storage<>(Integer.parseInt(properties.getProperty("WheelStorageCapacity")), "WheelStorage");
         carStorage = new Storage<>(Integer.parseInt(properties.getProperty("CarStorageCapacity")), "CarStorage");
         factoryBudget = Integer.parseInt(properties.getProperty("InitialBudget"));
-        supplierDelay = Integer.parseInt(properties.getProperty("SupplierDelay"));
+        supplierDelay = new AtomicInteger(Integer.parseInt(properties.getProperty("SupplierDelay")));
         dealerDelay = Integer.parseInt(properties.getProperty("DealerDelay"));
         int carPrice = Integer.parseInt(properties.getProperty("CarPrice"));
         int sparePartPrice = Integer.parseInt(properties.getProperty("SparePartPrice"));
@@ -68,37 +71,41 @@ public class CarFactory {
         int workerCount = Integer.parseInt(properties.getProperty("NumberOfWorkers"));
         int supplierCount = Integer.parseInt(properties.getProperty("NumberOfSuppliers"));
         producedCarCount = new AtomicInteger(0);
-        suppliers = new ArrayList<>();
+
+        // create thread pools
+        supplierThreadPool = new ThreadPool(supplierCount * 3);
+        workerThreadPool = new ThreadPool(workerCount);
+        dealerThreadPool = new ThreadPool(dealerCount);
 
         // create suppliers
-        supplierThreadPool = new ThreadPool(supplierCount * 3);
-
-        Task supplyWheels = new Supply<>(this, wheelStorage, supplierDelay, sparePartPrice, Wheel.class);
-        Task supplyEngine = new Supply<>(this, engineStorage, supplierDelay, sparePartPrice, Engine.class);
-        Task supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay, sparePartPrice, CarBody.class);
-
+        suppliers = new ArrayList<>();
+        Task supplyWheels = new Supply<>(this, wheelStorage, supplierDelay.get(), sparePartPrice, Wheel.class);
+        Task supplyEngine = new Supply<>(this, engineStorage, supplierDelay.get(), sparePartPrice, Engine.class);
+        Task supplyCarBody = new Supply<>(this, carBodyStorage, supplierDelay.get(), sparePartPrice, CarBody.class);
         suppliers.add(supplyEngine);
-        suppliers.add(supplyWheels);
         suppliers.add(supplyCarBody);
-
-        for (int i = 0; i < supplierCount; i++){
-            supplierThreadPool.addTask(supplyWheels);
-            supplierThreadPool.addTask(supplyEngine);
-            supplierThreadPool.addTask(supplyCarBody);
-        }
+        suppliers.add(supplyWheels);
 
         // create workers
-        workerThreadPool = new ThreadPool(workerCount);
-        for (int i = 0; i < workerCount; i++){
-            Task buildingOrder = new BuildCar(this);
-            workerThreadPool.addTask(buildingOrder);
-        }
+        Task buildingOrder = new BuildCar(this);
+
         // create dealers
-        dealerThreadPool = new ThreadPool(dealerCount);
-        for (int i = 0; i < dealerCount; i++){
-            sellingOrders.add(new SellCar(this, carPrice, dealerDelay));
-            dealerThreadPool.addTask(sellingOrders.get(i));
-        }
+        dealers = new ArrayList<>();
+        Task sellingOrder = (new SellCar(this, carPrice, dealerDelay));
+        dealers.add(sellingOrder);
+
+        // start production
+        Thread routine = new Thread(() -> {
+            while (carStorage.getItemCount() < carStorage.getStorageCapacity()){
+                supplierThreadPool.addTask(supplyWheels);
+                supplierThreadPool.addTask(supplyEngine);
+                supplierThreadPool.addTask(supplyCarBody);
+                workerThreadPool.addTask(buildingOrder);
+                dealerThreadPool.addTask(sellingOrder);
+            }
+        });
+
+        routine.start();
 
     }
 
@@ -128,7 +135,6 @@ public class CarFactory {
 
     public int closeCarOrder(){
         producedCarCount.getAndIncrement();
-//        update();
         int salary = Integer.parseInt(properties.getProperty("WorkerSalary"));
         factoryBudget -= salary;
         return salary;
@@ -143,13 +149,15 @@ public class CarFactory {
     }
 
     public void setDealerDelay(int dealerDelay) {
-        for (Task t: suppliers){
+        for (Task t: dealers){
             t.changeParams(dealerDelay);
         }
     }
 
     public void setSupplierDelay(int supplierDelay) {
-
+        for (Task t: suppliers){
+            t.changeParams(supplierDelay);
+        }
     }
 
     public Storage<Engine> passEngineStorageKey(){
@@ -174,67 +182,5 @@ public class CarFactory {
         dealerThreadPool.shutdown();
         logger.info("FACTORY :: FINISHED WORKING");
     }
-
-//    public void addObserver(Observer observer) {
-//        carStorage.addObserver(observer);
-//        wheelStorage.addObserver(observer);
-//        engineStorage.addObserver(observer);
-//        carBodyStorage.addObserver(observer);
-//    }
-
-//    @Override
-//    public void removeObserver(Observer observer) {
-//        carStorage.removeObserver(observer);
-//        wheelStorage.removeObserver(observer);
-//        engineStorage.removeObserver(observer);
-//        carBodyStorage.removeObserver(observer);
-//    }
-//
-//    @Override
-//    public void update() {
-//        for (Observer observer: observers){
-//            observer.onUpdate();
-//        }
-//    }
-
-//    @Override
-//    public void removeObserver(Observer observer) {
-//        observers.remove(observer);
-//    }
-////
-//    @Override
-//    public void updateCarCount() {
-//        for (Observer observer: observers){
-//            observer.onCarCountUpdate();
-//        }
-//    }
-//
-//    @Override
-//    public void updateCarsInStorage() {
-//        for (Observer observer: observers){
-//            observer.onCarCountUpdate();
-//        }
-//    }
-//
-//    @Override
-//    public void updateWheelsInStorage() {
-//        for (Observer observer: observers){
-//            observer.onWheelsInStorageUpdate();
-//        }
-//    }
-//
-//    @Override
-//    public void updateEnginesInStorage() {
-//        for (Observer observer: observers){
-//            observer.onEnginesInStorageUpdate();
-//        }
-//    }
-//
-//    @Override
-//    public void updateCarBodiesInStorage() {
-//        for (Observer observer: observers){
-//            observer.onCarBodiesInStorageUpdate();
-//        }
-//    }
 
 }

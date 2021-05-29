@@ -19,8 +19,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainApp extends Application{
-    private final Pane group = new Pane();
-    private final Scene scene = new Scene(group, 1200, 800);
     private Text carCount;
     private Text carsInStorage;
     private Text wheelsInStorage;
@@ -57,38 +55,61 @@ public class MainApp extends Application{
         carBodiesInStorage.setX(leftPadding);
         carBodiesInStorage.setY(topPadding + 4 * interval);
 
-        /************************ slider ***************************/
-        Label label = new Label("Supplier delay in mills:");
+        // create Supplier Delay Slider
+        Label supplierDelay = new Label("Supplier delay in mills:");
 
-        Label infoLabel = new Label("-");
-        infoLabel.setTextFill(Color.BLUE);
+        Label newSupplierDelay = new Label("-");
+        newSupplierDelay.setTextFill(Color.BLUE);
 
-        Slider slider = new Slider();
+        Slider supplierDelaySlider = new Slider();
 
-        slider.setMin(0);
-        slider.setMax(60000);
-        slider.setValue(1);
+        supplierDelaySlider.setMin(0);
+        supplierDelaySlider.setMax(60000);
+        supplierDelaySlider.setValue(1);
 
-//        slider.setShowTickLabels(true);
-        slider.setShowTickMarks(true);
+        supplierDelaySlider.setShowTickMarks(true);
 
-        slider.setBlockIncrement(10);
+        supplierDelaySlider.setBlockIncrement(10);
 
         // Adding Listener to value property.
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            infoLabel.setText("New value: " + newValue.intValue());
+        supplierDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            newSupplierDelay.setText("New value: " + newValue.intValue());
             factory.setSupplierDelay(newValue.intValue());
         }
         );
 
-        VBox root = new VBox();
-        root.setPadding(new Insets(20));
-        root.setSpacing(10);
-        root.getChildren().addAll(label, slider, infoLabel);
-        root.setLayoutY(400);
-        /***********************************************************/
+        // create Dealer Delay Slider
+        Label dealerDelay = new Label("Dealer delay in mills:");
 
-        Group counts = new Group(root, carCount, carsInStorage, wheelsInStorage, enginesInStorage, carBodiesInStorage);
+        Label newDealerDelay = new Label("-");
+        newDealerDelay.setTextFill(Color.BLUE);
+
+        Slider dealerDelaySlider = new Slider();
+
+        dealerDelaySlider.setMin(0);
+        dealerDelaySlider.setMax(60000);
+        dealerDelaySlider.setValue(1);
+
+        dealerDelaySlider.setShowTickMarks(true);
+
+        dealerDelaySlider.setBlockIncrement(10);
+
+        // Adding Listener to value property.
+        dealerDelaySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    newDealerDelay.setText("New value: " + newValue.intValue());
+                    factory.setDealerDelay(newValue.intValue());
+                }
+        );
+
+        // put sliders in a box
+        VBox sliderBox = new VBox();
+        sliderBox.setPadding(new Insets(leftPadding));
+        sliderBox.setSpacing(10);
+        sliderBox.getChildren().addAll(dealerDelay, dealerDelaySlider, newDealerDelay, supplierDelay, supplierDelaySlider, newSupplierDelay);
+        sliderBox.setLayoutY(400);
+
+        // group everything
+        Group counts = new Group(sliderBox, carCount, carsInStorage, wheelsInStorage, enginesInStorage, carBodiesInStorage);
         counts.setStyle("-fx-font: 17 arials;");
 
         Scene scene = new Scene(counts, 1000, 800);
